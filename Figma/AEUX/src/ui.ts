@@ -61,7 +61,7 @@ var vm = new Vue({
 })
 
 // receiving messages back from code.ts
-onmessage = (event) => {
+onmessage = async (event) => {
     let msg = event.data.pluginMessage;
     console.log(msg);
   
@@ -131,23 +131,26 @@ onmessage = (event) => {
             setFooterMsg(null, 'Failed to connect to Ae');
         });
     }
-	if (msg && msg.type === 'fetchImagesAndAEUX') {
+    if (msg && msg.type === 'fetchImagesAndAEUX') {
         vm.thinking = 'fetchAEUX'
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         // console.log(aeuxData);
         let imageList = [];
 
-        msg.images.forEach(img => {
-            const filetype = fileType(img.bytes)
-            // const blob = new Blob([img.bytes], { type: filetype.mime })
-            const name = img.name + '.' + filetype.ext
-
-            imageList.push({
-                name, 
-                imgData: _arrayBufferToBase64(img.bytes)
+        await Promise.all(
+            msg.images.map(async (img) => {
+                const filetype = await fileType.fromBuffer(img.bytes);
+                const name = img.name + '.' + filetype.ext;
+                imageList.push({
+                    name,
+                    imgData: _arrayBufferToBase64(img.bytes),
+                });
+                // folder.file(name, blob);
             })
-            // folder.file(name, blob);
-        })
+        ).catch(e => {
+            console.error(e);
+            setFooterMsg(null, 'Failed to process images');
+        });
 
         if (msg.refImg) {
             aeuxData.push(msg.refImg)
