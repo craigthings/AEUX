@@ -149,46 +149,49 @@ figma.ui.onmessage = message => {
         function asyncCollectHashes(id, cb) {
             setTimeout(() => {
                 // console.log('done with', item);
-                let shape = (figma.getNodeById(id) as any)
-
-                // disable effects
-                let effectVisList = []      // to store the effect visibility
-                let effects
-                if (shape.effects) {
-                    effects = clone(shape.effects)
-                    effects.forEach(effect => {         // turn them all off
-                        effectVisList.push(effect.visible)
-                        if (effect.type == 'DROP_SHADOW' || effect.type == 'LAYER_BLUR') {
-                            effect.visible = false
-                        }
-                    })
-                    shape.effects = effects
-                }
-
-                let compMult = 3
-                let imgScale = Math.min(3500 / Math.max(shape.width, shape.height), compMult)  // limit it to 4000px
-                // console.log('IMAGESCALE', imgScale, shape);
-
-                shape.exportAsync({
-                    format: "PNG",
-                    useAbsoluteBounds: true,
-                    constraint: { type: "SCALE", value: imgScale }
-                })
-                .then(img => {
-                    imageHashList.push({
-                        hash: figma.createImage(img).hash,
-                        id: `${shape.name.replace(/^\*\s/, '').replace(/^\*/, '')}_${id}`
-                    })
-                })
-                .then(() => {                    
-                    // re-enable effects 
-                    for (let i = 0; i < effectVisList.length; i++) {
-                        effects[i].visible = effectVisList[i]
+                // @ts-ignore
+                figma.getNodeByIdAsync(id).then(node => {
+                    let shape = node as any;
+                    // disable effects
+                    let effectVisList = []      // to store the effect visibility
+                    let effects
+                    if (shape.effects) {
+                        effects = clone(shape.effects)
+                        effects.forEach(effect => {         // turn them all off
+                            effectVisList.push(effect.visible)
+                            if (effect.type == 'DROP_SHADOW' || effect.type == 'LAYER_BLUR') {
+                                effect.visible = false
+                            }
+                        })
+                        shape.effects = effects
                     }
-                    shape.effects = effects
-                })
-                .then(() => {
-                    cb();
+
+                    let compMult = 3
+                    let imgScale = Math.min(3500 / Math.max(shape.width, shape.height), compMult)  // limit it to 4000px
+                    // console.log('IMAGESCALE', imgScale, shape);
+
+                    shape.exportAsync({
+                        format: "PNG",
+                        useAbsoluteBounds: true,
+                        constraint: { type: "SCALE", value: imgScale }
+                    })
+                    .then(img => {
+                        imageHashList.push({
+                            hash: figma.createImage(img).hash,
+                            id: `${shape.name.replace(/^\*\s/, '').replace(/^\*/, '')}_${id}`
+                        })
+                    })
+                    .then(() => {                    
+                        // re-enable effects 
+                        for (let i = 0; i < effectVisList.length; i++) {
+                            effects[i].visible = effectVisList[i]
+                        }
+                        shape.effects = effects
+                    })
+                    .then(() => {
+                        cb();
+                    })
+
                 })
 
 

@@ -88,7 +88,7 @@ onmessage = (event) => {
         }
         let aeuxData = aeux.convert(msg.data[0]); // convert layer data
         // console.log(aeuxData);
-        fetch(`http://127.0.0.1:7240/evalScript`, {
+        fetch(`http://localhost:7240/evalScript`, {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -139,7 +139,7 @@ onmessage = (event) => {
         if (msg.refImg) {
             aeuxData.push(msg.refImg);
         }
-        fetch(`http://127.0.0.1:7240/writeFiles`, {
+        fetch(`http://localhost:7240/writeFiles`, {
             method: "POST",
             headers: {
                 'Accept': 'application/json',

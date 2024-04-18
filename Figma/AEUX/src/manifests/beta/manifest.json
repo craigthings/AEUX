@@ -4,7 +4,12 @@
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
-  "editorType": [
-    "figma"
-  ]
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "documentAccess": "dnyamic-page",
+  "networkAccess": { 
+    "allowedDomains": ["ws://localhost:7250", "http://localhost:7240"],
+    "reasoning": "This plugin needs to connect to the AEUX server running inside After Effects to transfer data."
+  }
 }
